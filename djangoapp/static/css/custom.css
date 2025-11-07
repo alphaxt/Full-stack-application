@@ -1,0 +1,21 @@
+/* Custom CSS for Dealership Review Application */
+
+.card-columns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.card {
+    margin-bottom: 1rem;
+}
+
+.navbar {
+    margin-bottom: 2rem;
+}
+
+.container-fluid {
+    padding: 2rem;
+}
+
+

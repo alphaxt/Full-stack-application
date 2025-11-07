@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=dealershipsDB
+
+  dealerships-service:
+    build: .
+    container_name: dealerships-service
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongodb
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017
+      - DB_NAME=dealershipsDB
+      - PORT=3000
+
+volumes:
+  mongodb_data:
+
+
