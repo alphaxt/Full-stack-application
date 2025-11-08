@@ -143,3 +143,4 @@ LOGIN_REDIRECT_URL = '/djangoapp/'
 LOGOUT_REDIRECT_URL = '/djangoapp/'
 
 
+

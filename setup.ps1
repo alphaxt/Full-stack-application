@@ -33,3 +33,4 @@ Write-Host "4. cd djangoapp; python manage.py createsuperuser" -ForegroundColor 
 Write-Host "5. cd djangoapp; python manage.py runserver" -ForegroundColor White
 
 
+

@@ -147,6 +147,20 @@ async function initializeData() {
   }
 }
 
+// Root route
+app.get('/', (req, res) => {
+  res.json({
+    message: 'Dealership Service API',
+    version: '1.0.0',
+    endpoints: {
+      'GET /fetchDealers': 'Get all dealers (optional: ?state=StateName)',
+      'GET /fetchDealer/:id': 'Get dealer by ID',
+      'GET /fetchReviews/dealer/:id': 'Get reviews for a dealer',
+      'POST /insertReview': 'Insert a new review'
+    }
+  });
+});
+
 // Get all dealers
 app.get('/fetchDealers', async (req, res) => {
   try {
@@ -247,5 +261,6 @@ app.post('/insertReview', async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+
 
 

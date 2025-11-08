@@ -46,3 +46,4 @@ class CarModel(models.Model):
         return "Name: " + self.name
 
 
+
