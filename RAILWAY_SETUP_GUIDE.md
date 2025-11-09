@@ -1,275 +1,195 @@
-# 🚀 Complete Railway Deployment Guide
+# Complete Railway Setup Guide - Fix Deployment Issues
+
+## 🎯 The Issue
+
+Railway needs to know the **Root Directory** for each service. If not set correctly, it will look for files in the wrong place.
+
+## ✅ Correct Railway Setup
+
+### Step 1: Deploy Django App
+
+1. **Create New Service:**
+   - Click **New** → **GitHub Repo**
+   - Select your repository
+
+2. **Configure Settings:**
+   - Go to **Settings** tab
+   - **Root Directory**: `djangoapp` ⚠️ **IMPORTANT**
+   - **Dockerfile Path**: `Dockerfile` (or leave default)
+   - Click **Save**
+
+3. **Set Environment Variables:**
+   - Go to **Variables** tab
+   - Add:
+     ```
+     SECRET_KEY=your-random-secret-key-here
+     DEALERSHIP_SERVICE_URL=(will update later)
+     SENTIMENT_ANALYZER_URL=(will update later)
+     ```
+
+4. **Deploy:**
+   - Go to **Deployments** tab
+   - Click **Deploy** (or it auto-deploys)
+
+### Step 2: Deploy MongoDB
+
+1. **Create Database:**
+   - Click **New** → **Database** → **MongoDB**
+   - Railway creates it automatically
+
+2. **Get Connection String:**
+   - Click on MongoDB service
+   - Go to **Connect** tab
+   - Copy the **MongoDB Connection String**
+   - Format: `mongodb://mongo:27017` or similar
+
+### Step 3: Deploy Node.js Service (dealerships-service)
+
+1. **Create New Service:**
+   - Click **New** → **GitHub Repo**
+   - Select your repository
+
+2. **Configure Settings:**
+   - Go to **Settings** tab
+   - **Root Directory**: `dealerships-service` ⚠️ **IMPORTANT**
+   - **Dockerfile Path**: `Dockerfile`
+   - Click **Save**
+
+3. **Set Environment Variables:**
+   - Go to **Variables** tab
+   - Add:
+     ```
+     MONGODB_URI=(paste MongoDB connection string from Step 2)
+     DB_NAME=dealershipsDB
+     PORT=3000
+     ```
+
+4. **Deploy:**
+   - Go to **Deployments** tab
+   - Click **Deploy**
 
-## Current Status
-- ✅ Logged into Railway as: Muhammad danish
-- ✅ Project exists: "full stack"
-- ✅ Django service deployed
-- ❌ Need to add: MongoDB + Dealerships Service
+### Step 4: Deploy Sentiment Analyzer
 
----
+1. **Create New Service:**
+   - Click **New** → **GitHub Repo**
+   - Select your repository
+
+2. **Configure Settings:**
+   - Go to **Settings** tab
+   - **Root Directory**: `sentiment-analyzer` ⚠️ **IMPORTANT**
+   - **Dockerfile Path**: `Dockerfile`
+   - Click **Save**
 
-## Step-by-Step Deployment
+3. **Set Environment Variables:**
+   - Go to **Variables** tab
+   - Add:
+     ```
+     PORT=8080
+     ```
 
-### Step 1: Add MongoDB Database
+4. **Deploy:**
+   - Go to **Deployments** tab
+   - Click **Deploy**
 
-**Option A: Railway Dashboard (Recommended)**
+### Step 5: Update Service URLs
 
-1. Open Railway Dashboard: https://railway.app/dashboard
-2. Click on your **"full stack"** project
-3. Click **"New"** button
-4. Select **"Database"** → **"MongoDB"**
-5. Railway will automatically provision MongoDB
-6. Click on the MongoDB service card
-7. Go to **"Variables"** tab
-8. Copy the **`MONGO_URL`** value (looks like: `mongodb://mongo:...`)
+1. **Get Public URLs:**
+   - For each service, go to **Settings** → **Domains**
+   - Copy the public URL (e.g., `https://dealerships-service-production.up.railway.app`)
 
-**Option B: Use MongoDB Atlas (Free Tier)**
+2. **Update Django App Variables:**
+   - Go to Django app service
+   - **Variables** tab
+   - Update:
+     ```
+     DEALERSHIP_SERVICE_URL=https://dealerships-service-production.up.railway.app
+     SENTIMENT_ANALYZER_URL=https://sentiment-analyzer-production.up.railway.app
+     ```
 
-1. Go to https://www.mongodb.com/cloud/atlas
-2. Create a free account
-3. Create a free cluster (M0)
-4. Click "Connect" → "Connect your application"
-5. Copy the connection string
-6. Replace `<password>` with your actual password
+3. **Redeploy Django App:**
+   - Go to **Deployments** tab
+   - Click **Redeploy**
 
----
+### Step 6: Create Superuser
 
-### Step 2: Deploy Dealerships Service
+1. **Run Command:**
+   - Go to Django app service
+   - **Deployments** tab → Latest deployment
+   - Click **...** (three dots) → **Run Command**
+   - Command: `python manage.py createsuperuser`
+   - Follow prompts
 
-#### Option A: Using Railway Dashboard (Easiest)
+## 🔍 Troubleshooting
 
-1. Go to Railway Dashboard: https://railway.app/dashboard
-2. Select **"full stack"** project
-3. Click **"New"** → **"GitHub Repo"**
-4. Select your repository: **alphaxt/Full-stack-application**
-5. Configure the service:
-   - **Service Name**: `dealerships-service`
-   - **Root Directory**: `/dealerships-service`
-   - **Start Command**: `node server.js` (Railway auto-detects this)
-6. Click **"Add Service"**
+### Error: "/djangoapp": not found
 
-#### Option B: Using Railway CLI
+**Cause:** Root Directory not set correctly
 
-```powershell
-# Navigate to dealerships service
-cd C:\Users\Alpha\OneDrive\Documents\GitHub\Full-stack-application\dealerships-service
+**Fix:**
+1. Go to service → **Settings**
+2. Set **Root Directory** to correct folder:
+   - Django: `djangoapp`
+   - Node.js: `dealerships-service`
+   - Sentiment: `sentiment-analyzer`
+3. Click **Save**
+4. Redeploy
 
-# Create new service (this will prompt you in browser)
-railway init
+### Error: Cannot find module
 
-# Deploy
-railway up
-```
+**Cause:** Node.js service not finding package.json
 
----
+**Fix:**
+- Verify **Root Directory** is `dealerships-service`
+- Check that `package.json` exists in that directory
+- Redeploy
 
-### Step 3: Configure Environment Variables
+### Error: MongoDB connection failed
 
-#### For Dealerships Service
+**Cause:** Wrong MONGODB_URI
 
-1. In Railway Dashboard, click on **dealerships-service**
-2. Go to **"Variables"** tab
-3. Add these variables:
+**Fix:**
+1. Go to MongoDB service → **Connect** tab
+2. Copy the connection string
+3. Update in Node.js service variables
+4. Redeploy Node.js service
 
-```
-MONGODB_URI = <your-mongo-url-from-step-1>
-DB_NAME = dealershipsDB
-PORT = 3000
-```
+### Service not accessible
 
-4. Click **"Deploy"** to redeploy with new variables
+**Cause:** Service not deployed or domain not set
 
-#### For Django Service
+**Fix:**
+1. Check deployment status (should be green)
+2. Go to **Settings** → **Domains**
+3. Generate domain if not exists
+4. Wait a few minutes for DNS propagation
 
-1. In Railway Dashboard, click on **full stack** (Django service)
-2. Go to **"Variables"** tab
-3. Update/Add these variables:
+## 📋 Deployment Checklist
 
-```
-DEALERSHIP_SERVICE_URL = https://<dealerships-service-url>.railway.app
-DEBUG = False
-SECRET_KEY = <generate-a-strong-secret-key>
-SENTIMENT_ANALYZER_URL = <your-sentiment-analyzer-url>
-```
+For each service, verify:
 
-**To get the dealerships service URL:**
-- Click on the dealerships service
-- Go to **"Settings"** tab
-- Under **"Domains"**, you'll see the Railway domain
-- Or generate a custom domain
+- [ ] **Root Directory** is set correctly
+- [ ] **Dockerfile Path** is correct
+- [ ] **Environment Variables** are set
+- [ ] **Deployment status** is "Succeeded" (green)
+- [ ] **Public URL** is generated
+- [ ] **Service is accessible** via public URL
 
-4. After adding variables, Django will auto-redeploy
+## 🎯 Final URLs
 
----
+After deployment, you'll have:
 
-### Step 4: Generate Domain for Dealerships Service
+- **Django App**: `https://django-app-production.up.railway.app`
+- **Node.js Service**: `https://dealerships-service-production.up.railway.app`
+- **Sentiment Analyzer**: `https://sentiment-analyzer-production.up.railway.app`
 
-1. Click on **dealerships-service**
-2. Go to **"Settings"** tab
-3. Scroll to **"Networking"** → **"Public Networking"**
-4. Click **"Generate Domain"**
-5. Copy the generated URL (e.g., `dealerships-service-production-xxxx.railway.app`)
-6. Use this URL in Django's `DEALERSHIP_SERVICE_URL` variable
+**Submit the Django App URL for Task 24!**
 
----
+## 💡 Pro Tips
 
-### Step 5: Commit and Push Changes
+1. **Always set Root Directory first** before deploying
+2. **Check Build Logs** if deployment fails
+3. **Wait for green status** before testing
+4. **Test each service** individually before connecting them
+5. **Keep Railway dashboard open** to monitor deployments
 
-Since we updated Django settings, let's push to GitHub:
-
-```powershell
-# Navigate to project root
-cd C:\Users\Alpha\OneDrive\Documents\GitHub\Full-stack-application
-
-# Stage changes
-git add .
-
-# Commit
-git commit -m "Fix: Add CSRF trusted origins and Railway deployment configs"
-
-# Push to GitHub
-git push origin main
-```
-
-Railway will auto-deploy when it detects the push.
-
----
-
-## Quick Commands Reference
-
-```powershell
-# Check deployment status
-railway status
-
-# View logs for Django service
-railway logs --service "full stack"
-
-# View logs for dealerships service
-railway logs --service "dealerships-service"
-
-# Open project in browser
-railway open
-
-# List all services
-railway service
-```
-
----
-
-## Testing Your Deployment
-
-After all services are deployed (wait 2-3 minutes):
-
-```powershell
-# Test Django app
-Invoke-WebRequest -Uri https://full-stack-production-ea8f.up.railway.app/djangoapp/
-
-# Test dealerships service (replace with your actual URL)
-Invoke-WebRequest -Uri https://<dealerships-url>.railway.app/fetchDealers
-
-# Check if dealerships endpoint works
-Invoke-WebRequest -Uri https://<dealerships-url>.railway.app/
-```
-
----
-
-## Troubleshooting
-
-### MongoDB Connection Issues
-
-If dealerships service can't connect to MongoDB:
-
-1. Check `MONGODB_URI` variable is set correctly
-2. Ensure MongoDB service is running in Railway
-3. Check logs: `railway logs --service dealerships-service`
-
-### CORS Issues
-
-If you get CORS errors:
-
-- Dealerships service already has CORS enabled
-- Check Django ALLOWED_HOSTS includes Railway domain
-
-### Service Not Found
-
-If Railway can't find a service:
-
-```powershell
-# Link to correct service
-railway link
-# Then select the service from the list
-```
-
----
-
-## Expected Results
-
-After successful deployment:
-
-- ✅ MongoDB running and accessible
-- ✅ Dealerships service running on Railway
-- ✅ Django app can connect to dealerships service
-- ✅ Login/signup works (CSRF fixed)
-- ✅ Dealer listings load
-- ✅ Reviews can be added
-
----
-
-## Environment Variables Summary
-
-### MongoDB Service
-(Auto-configured by Railway)
-- `MONGO_URL` - Connection string
-
-### Dealerships Service
-- `MONGODB_URI` - Connection to MongoDB
-- `DB_NAME` - dealershipsDB
-- `PORT` - 3000 (Railway auto-sets)
-
-### Django Service
-- `SECRET_KEY` - Django secret key
-- `DEBUG` - False
-- `DEALERSHIP_SERVICE_URL` - https://dealerships-xxx.railway.app
-- `SENTIMENT_ANALYZER_URL` - Your sentiment analyzer URL
-- `ALLOWED_HOSTS` - * (already set)
-
----
-
-## Next Steps After Deployment
-
-1. **Create superuser** (if not exists in production DB):
-   ```powershell
-   railway run python manage.py createsuperuser --service "full stack"
-   ```
-
-2. **Populate car makes/models** via Django admin:
-   - Visit: https://full-stack-production-ea8f.up.railway.app/admin
-   - Login with superuser credentials
-   - Add car makes and models
-
-3. **Test complete flow**:
-   - Browse dealers
-   - Filter by state
-   - View dealer details
-   - Add a review
-   - Check review appears
-
----
-
-## Support
-
-If you encounter issues:
-
-1. Check Railway logs
-2. Verify all environment variables are set
-3. Ensure all services are running
-4. Check the DEPLOYMENT_STATUS.md file
-
-**Useful Links:**
-- Railway Dashboard: https://railway.app/dashboard
-- Railway Docs: https://docs.railway.app/
-- Your App: https://full-stack-production-ea8f.up.railway.app
-
----
-
-**Last Updated**: November 9, 2025
+Good luck! 🚀
