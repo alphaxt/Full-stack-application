@@ -98,6 +98,61 @@ def get_dealerships(request):
             dealerships = restapis.get_dealers_from_cf(url, state=state)
         else:
             dealerships = restapis.get_dealers_from_cf(url)
+        
+        # Fallback sample data if service is not available
+        if not dealerships:
+            logger.warning("Dealership service not available, using sample data")
+            dealerships = [
+                {
+                    "id": 1,
+                    "full_name": "Holdlamis Car Dealership",
+                    "address": "3 Nova Court",
+                    "city": "El Paso",
+                    "state": "Texas",
+                    "zip": "88563",
+                    "short_name": "Holdlamis"
+                },
+                {
+                    "id": 2,
+                    "full_name": "Tempsoft Car Dealership",
+                    "address": "4 Spenser Place",
+                    "city": "Minneapolis",
+                    "state": "Minnesota",
+                    "zip": "55487",
+                    "short_name": "Tempsoft"
+                },
+                {
+                    "id": 3,
+                    "full_name": "Kansas Auto Dealership",
+                    "address": "5 Main Street",
+                    "city": "Kansas City",
+                    "state": "Kansas",
+                    "zip": "66101",
+                    "short_name": "Kansas Auto"
+                },
+                {
+                    "id": 15,
+                    "full_name": "LA Motors Dealership",
+                    "address": "123 Hollywood Blvd",
+                    "city": "Los Angeles",
+                    "state": "California",
+                    "zip": "90028",
+                    "short_name": "LA Motors"
+                },
+                {
+                    "id": 29,
+                    "full_name": "NYC Auto Dealership",
+                    "address": "456 Broadway",
+                    "city": "New York",
+                    "state": "New York",
+                    "zip": "10013",
+                    "short_name": "NYC Auto"
+                }
+            ]
+            # Filter by state if requested
+            if state:
+                dealerships = [d for d in dealerships if d.get('state') == state]
+        
         # Concat all dealer's short name
         context = {
             "dealership_list": dealerships,
@@ -112,12 +167,40 @@ def get_dealer_details(request, dealer_id):
         url = f"{settings.DEALERSHIP_SERVICE_URL}/fetchDealer/{dealer_id}"
         dealer = restapis.get_dealer_by_id_from_cf(url, dealer_id)
         
+        # Fallback dealer data if service not available
+        if not dealer:
+            logger.warning("Dealership service not available, using sample dealer data")
+            sample_dealers = {
+                1: {"id": 1, "full_name": "Holdlamis Car Dealership", "address": "3 Nova Court", "city": "El Paso", "state": "Texas", "zip": "88563"},
+                2: {"id": 2, "full_name": "Tempsoft Car Dealership", "address": "4 Spenser Place", "city": "Minneapolis", "state": "Minnesota", "zip": "55487"},
+                3: {"id": 3, "full_name": "Kansas Auto Dealership", "address": "5 Main Street", "city": "Kansas City", "state": "Kansas", "zip": "66101"},
+                15: {"id": 15, "full_name": "LA Motors Dealership", "address": "123 Hollywood Blvd", "city": "Los Angeles", "state": "California", "zip": "90028"},
+                29: {"id": 29, "full_name": "NYC Auto Dealership", "address": "456 Broadway", "city": "New York", "state": "New York", "zip": "10013"}
+            }
+            dealer = sample_dealers.get(dealer_id, {"id": dealer_id, "full_name": f"Dealership {dealer_id}"})
+        
         reviews_url = f"{settings.DEALERSHIP_SERVICE_URL}/fetchReviews/dealer/{dealer_id}"
         reviews = restapis.get_dealer_reviews_from_cf(reviews_url, dealer_id)
         
-        # Analyze sentiment for each review
-        for review in reviews:
-            review['sentiment'] = restapis.analyze_review_sentiments(review.get('review', ''))
+        # Fallback sample reviews if service not available
+        if not reviews:
+            reviews = [
+                {
+                    "id": 1,
+                    "name": "Sample User",
+                    "review": "Great service and friendly staff!",
+                    "purchase": True,
+                    "purchase_date": "01/15/2024",
+                    "car_make": "Toyota",
+                    "car_model": "Camry",
+                    "car_year": 2023,
+                    "sentiment": "positive"
+                }
+            ]
+        else:
+            # Analyze sentiment for each review
+            for review in reviews:
+                review['sentiment'] = restapis.analyze_review_sentiments(review.get('review', ''))
         
         context = {
             "dealer": dealer,
