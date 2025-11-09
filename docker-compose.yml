@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  dealerships-service:
+    build: ./dealerships-service
+    ports:
+      - "3000:3000"
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017
+      - DB_NAME=dealershipsDB
+    depends_on:
+      - mongodb
+
+  django-app:
+    build: ./djangoapp
+    ports:
+      - "8000:8000"
+    environment:
+      - DEALERSHIP_SERVICE_URL=http://dealerships-service:3000
+      - SENTIMENT_ANALYZER_URL=http://sentiment-analyzer:8080
+    depends_on:
+      - dealerships-service
+
+  sentiment-analyzer:
+    build: ./sentiment-analyzer
+    ports:
+      - "8080:8080"
+
+volumes:
+  mongo-data:
