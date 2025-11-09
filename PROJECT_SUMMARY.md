@@ -220,5 +220,3 @@ For issues, questions, or contributions, please refer to:
 - [QUICK_START.md](QUICK_START.md) - Quick start guide
 - [PROJECT_CHECKLIST.md](PROJECT_CHECKLIST.md) - Submission checklist
 
-
-

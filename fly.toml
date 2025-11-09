@@ -1,0 +1,28 @@
+# fly.toml app configuration file
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+
+app = "your-django-app-name"
+primary_region = "iad"
+
+[build]
+  dockerfile = "djangoapp/Dockerfile"
+  build_args = []
+
+[env]
+  SECRET_KEY = "change-this-in-production"
+  DEALERSHIP_SERVICE_URL = "https://your-dealerships-service.fly.dev"
+  SENTIMENT_ANALYZER_URL = "https://your-sentiment-analyzer.fly.dev"
+
+[http_service]
+  internal_port = 8000
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 1
+  memory_mb = 256
+

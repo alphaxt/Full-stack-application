@@ -45,5 +45,3 @@ jobs:
           # Skip linting if eslint is not configured
           echo "JavaScript linting skipped - configure ESLint if needed"
 
-
-

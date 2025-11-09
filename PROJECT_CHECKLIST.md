@@ -163,5 +163,3 @@ npm start
 - Check that sentiment analysis is working for reviews
 - Verify that Post Review button only shows for authenticated users
 
-
-

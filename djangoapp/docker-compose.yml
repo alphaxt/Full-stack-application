@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  django-app:
+    build: .
+    container_name: django-app
+    ports:
+      - "8000:8000"
+    environment:
+      - SECRET_KEY=${SECRET_KEY:-django-insecure-change-this-in-production}
+      - DEALERSHIP_SERVICE_URL=${DEALERSHIP_SERVICE_URL:-http://dealerships-service:3000}
+      - SENTIMENT_ANALYZER_URL=${SENTIMENT_ANALYZER_URL:-http://sentiment-analyzer:8080}
+    depends_on:
+      - dealerships-service
+    volumes:
+      - ./db.sqlite3:/app/db.sqlite3
+      - ./staticfiles:/app/staticfiles
+
+  dealerships-service:
+    build: ../dealerships-service
+    container_name: dealerships-service
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongodb
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017
+      - DB_NAME=dealershipsDB
+      - PORT=3000
+
+  mongodb:
+    image: mongo:7
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=dealershipsDB
+
+  sentiment-analyzer:
+    build: ../sentiment-analyzer
+    container_name: sentiment-analyzer
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+
+volumes:
+  mongodb_data:
+

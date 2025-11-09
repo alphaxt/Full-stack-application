@@ -1,0 +1,21 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "djangoapp/wsgi.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "djangoapp/wsgi.py"
+    }
+  ],
+  "env": {
+    "SECRET_KEY": "@secret-key",
+    "DEALERSHIP_SERVICE_URL": "@dealership-service-url",
+    "SENTIMENT_ANALYZER_URL": "@sentiment-analyzer-url"
+  }
+}
+

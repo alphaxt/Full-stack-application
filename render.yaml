@@ -1,0 +1,47 @@
+services:
+  - type: web
+    name: django-app
+    env: docker
+    dockerfilePath: ./djangoapp/Dockerfile
+    dockerContext: ./djangoapp
+    plan: free
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEALERSHIP_SERVICE_URL
+        value: https://dealerships-service.onrender.com
+      - key: SENTIMENT_ANALYZER_URL
+        value: https://sentiment-analyzer.onrender.com
+    healthCheckPath: /djangoapp/
+
+  - type: web
+    name: dealerships-service
+    env: docker
+    dockerfilePath: ./dealerships-service/Dockerfile
+    dockerContext: ./dealerships-service
+    plan: free
+    envVars:
+      - key: MONGODB_URI
+        fromDatabase:
+          name: mongodb
+          property: connectionString
+      - key: DB_NAME
+        value: dealershipsDB
+      - key: PORT
+        value: "3000"
+
+  - type: web
+    name: sentiment-analyzer
+    env: docker
+    dockerfilePath: ./sentiment-analyzer/Dockerfile
+    dockerContext: ./sentiment-analyzer
+    plan: free
+    envVars:
+      - key: PORT
+        value: "8080"
+
+databases:
+  - name: mongodb
+    plan: free
+    databaseName: dealershipsDB
+

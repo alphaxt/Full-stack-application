@@ -45,5 +45,3 @@ class CarModel(models.Model):
     def __str__(self):
         return "Name: " + self.name
 
-
-

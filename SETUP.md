@@ -152,5 +152,3 @@ PORT=3000
 4. Configure production environment variables
 5. Set up monitoring and logging
 
-
-

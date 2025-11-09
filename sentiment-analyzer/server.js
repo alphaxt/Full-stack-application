@@ -61,5 +61,3 @@ app.listen(PORT, () => {
     console.log(`Sentiment Analyzer Service running on port ${PORT}`);
 });
 
-
-
