@@ -1,0 +1,45 @@
+name: Deploy to Railway
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy-django:
+    name: Deploy Django Service
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: Deploy Django Service
+        run: |
+          railway link ${{ secrets.RAILWAY_PROJECT_ID }} --environment production
+          railway service ${{ secrets.RAILWAY_DJANGO_SERVICE_ID }}
+          railway up --detach
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+
+  deploy-dealerships:
+    name: Deploy Dealerships Service
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: Deploy Dealerships Service
+        run: |
+          cd dealerships-service
+          railway link ${{ secrets.RAILWAY_PROJECT_ID }} --environment production
+          railway service ${{ secrets.RAILWAY_DEALERSHIPS_SERVICE_ID }}
+          railway up --detach
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
